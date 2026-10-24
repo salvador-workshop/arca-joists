@@ -1,7 +1,7 @@
 {
-  "name": "joist-base",
-  "version": "0.1.0",
-  "description": "joist-base",
+  "name": "dowel-joist-panel",
+  "version": "0.1.1-alpha.0",
+  "description": "dowel-joist-panel",
   "homepage": "",
   "main": "src/index.js",
   "scripts": {
