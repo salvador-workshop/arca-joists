@@ -1,8 +1,9 @@
 "use strict"
 
-const dowelHolderModule = require('../dowel-holder')
+const openWebJoistModule = require('./open-web-joist.js')
 
 const dowelJoistPanelInit = ({ jscad, swcadJs }) => {
+    const openWebJoist = openWebJoistModule.init({ jscad, swcadJs })
 
     const {
         cylinder,
@@ -31,10 +32,8 @@ const dowelJoistPanelInit = ({ jscad, swcadJs }) => {
     } = swcadJs.calcs
 
     const {
-        openWebJoist,
+        fittings,
     } = swcadJs.components
-
-    const dowelHolder = dowelHolderModule.init({ jscad, swcadJs })
 
 
     //==============================================================================
@@ -181,7 +180,6 @@ const dowelJoistPanelInit = ({ jscad, swcadJs }) => {
         const width = interfaceThickness * 2 + dowelCtrDistance + dowelDiam
 
         const joistWebWidth = width - (dowelDiam * 2) - (interfaceThickness * 2)
-        const dowelHolderWidth = interfaceThickness * 2 + dowelDiam
 
 
         /* ----------------------------------------
@@ -210,7 +208,6 @@ const dowelJoistPanelInit = ({ jscad, swcadJs }) => {
             lengthUnits,
             interfaceThickness,
             fitGap,
-            dowelHolderWidth,
         }
 
         const modelPoints = {
@@ -259,7 +256,7 @@ const dowelJoistPanelInit = ({ jscad, swcadJs }) => {
                 dowelHolderLength,
             } = modelProps.dims
 
-            let dHolder = dowelHolder({
+            let dHolder = fittings.roundFitting({
                 dowelRadius,
                 length: dowelHolderLength,
             })[0]
