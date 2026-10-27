@@ -61,7 +61,7 @@ const railFramesInit = ({ jscad, swcadJs }) => {
     } = swcadJs.calcs
 
     const {
-        reinforcedRectPanel,
+        reinforcements,
     } = swcadJs.components
 
 
@@ -202,6 +202,9 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         const centreFrameWidth = width - (railCentreOffset * 2)
         const sideFrameWidth = dowelCtrDistance + interfaceThickness
 
+        const joistWebWidth = dowelCtrDistance - dowelDiam
+        const joistReinforcementLevel = 1
+
         /* ----------------------------------------
         * Preparing Model Properties, Dimensions
         * ------------------------------------- */
@@ -212,6 +215,7 @@ const railFramesInit = ({ jscad, swcadJs }) => {
 
         /** Derived user options for the model */
         const modelOpts = {
+            joistReinforcementLevel,
             type,
             scale,
         }
@@ -219,6 +223,8 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         /** Various dimensions for model */
         const modelDims = {
             size,
+            width,
+            depth,
             dowelRadius,
             dowelCtrDistance,
             dowelDiam,
@@ -227,8 +233,7 @@ const railFramesInit = ({ jscad, swcadJs }) => {
             railCentreOffset,
             centreFrameWidth,
             sideFrameWidth,
-            width,
-            depth,
+            joistWebWidth,
             interfaceThickness,
             fitGap,
         }
@@ -289,6 +294,8 @@ const railFramesInit = ({ jscad, swcadJs }) => {
 
         const {
             size,
+            width,
+            depth,
             dowelRadius,
             dowelCtrDistance,
             dowelDiam,
@@ -297,13 +304,13 @@ const railFramesInit = ({ jscad, swcadJs }) => {
             railCentreOffset,
             centreFrameWidth,
             sideFrameWidth,
-            width,
-            depth,
+            joistWebWidth,
+            joistReinforcementLevel,
             interfaceThickness,
             fitGap,
         } = modelProperties.dims
 
-        const centreFrame = reinforcedRectPanel({
+        const centreFrame = reinforcements.reinforcedRectPanel({
             size: [
                 centreFrameWidth,
                 depth,
@@ -312,26 +319,24 @@ const railFramesInit = ({ jscad, swcadJs }) => {
             reinforcementThickness: [interfaceThickness, interfaceThickness, interfaceThickness],
             reinforcementPattern: 'full-double'
         })[0]
-        const sideFrame = reinforcedRectPanel({
-            size: [
-                sideFrameWidth,
-                depth,
-                interfaceThickness
-            ],
-            reinforcementThickness: [interfaceThickness, interfaceThickness, interfaceThickness],
+
+        const sideJoistWeb = reinforcements.reinforcedJoist({
+            length: depth,
+            width: joistWebWidth,
+            reinforcementLevel: joistReinforcementLevel,
         })[0]
 
-        const edgePtLeft = [centreFrameWidth / -2 + interfaceThickness, 0, 0]
+        const edgePtLeft = [centreFrameWidth / -2 - dowelDiam, 0, 0]
         const frameLeft = align({
             modes: ['max', 'center', 'center'],
             relativeTo: edgePtLeft
-        }, sideFrame)
+        }, sideJoistWeb)
 
-        const edgePtRight = [centreFrameWidth / 2 - interfaceThickness, 0, 0]
+        const edgePtRight = [centreFrameWidth / 2 + dowelDiam, 0, 0]
         const frameRight = align({
             modes: ['min', 'center', 'center'],
             relativeTo: edgePtRight
-        }, sideFrame)
+        }, sideJoistWeb)
 
         const frameAssembly = union(
             position.ctr(centreFrame),
