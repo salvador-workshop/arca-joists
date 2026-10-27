@@ -18,6 +18,7 @@ const railFramesInit = ({ jscad, swcadJs }) => {
 
     const {
         standards,
+        constants,
     } = swcadJs.data
 
     const {
@@ -160,10 +161,13 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         const depth = size[1]
         const dowelDiam = dowelRadius * 2
 
-        const dowelHolderWidth = dowelDiam + (interfaceThickness * 2)
         const railEdgeOffset = dowelDiam + interfaceThickness
+        const joistCtrDistanceEdgeOffset = dowelRadius + interfaceThickness
+        const joistCtrDistanceOffset = dowelCtrDistance - joistCtrDistanceEdgeOffset
         const railCentreOffset = dowelCtrDistance + railEdgeOffset
+
         const centreFrameWidth = width - (railCentreOffset * 2)
+        const joistCtrDistance = width - (joistCtrDistanceOffset * 2)
         const sideFrameWidth = dowelCtrDistance + interfaceThickness
 
         const joistWebEdgePtLeft = [centreFrameWidth / -2 - dowelDiam, 0, 0]
@@ -179,6 +183,17 @@ const railFramesInit = ({ jscad, swcadJs }) => {
 
         const joistWebWidth = dowelCtrDistance - dowelDiam
         const joistReinforcementLevel = 1
+
+        const dowelHolderWidth = dowelDiam + (interfaceThickness * 2)
+        const invCutawayHeight = dowelDiam * constants.EQUI_TRIANGLE_HEIGHT_FACTOR
+
+        const joistRailBracketCutawaySize = [
+            dowelDiam + interfaceThickness,
+            invCutawayHeight + (interfaceThickness / 2),
+        ]
+
+        const simpleJoistRailBracketWidth = dowelCtrDistance + dowelDiam + (interfaceThickness * 4)
+        const joistRailBracketWidth = width + (interfaceThickness * 2)
 
         /* ----------------------------------------
         * Preparing Model Properties, Dimensions
@@ -207,8 +222,13 @@ const railFramesInit = ({ jscad, swcadJs }) => {
             railEdgeOffset,
             railCentreOffset,
             centreFrameWidth,
+            joistCtrDistance,
             sideFrameWidth,
             joistWebWidth,
+            invCutawayHeight,
+            joistRailBracketCutawaySize,
+            simpleJoistRailBracketWidth,
+            joistRailBracketWidth,
             interfaceThickness,
             fitGap,
         }
@@ -447,7 +467,26 @@ const railFramesInit = ({ jscad, swcadJs }) => {
     }
 
     /**
-     * ...
+     * Simple joist rail bracket, which fits a single dowel joist
+     * @param {*} opts 
+     * @returns Array with model, parts, and properties: [`geom3`, `Object.<string, geom3>`, `Object.<string, any>`]
+     * @memberof joistFittings
+     */
+    const simpleJoistRailBracket = (opts) => {
+        const defaults = railFramesDefaults()
+        const initOpts = railFramesOpts(opts)
+        const modelProperties = railFramesProps(initOpts)
+
+        const mainModel = cuboid()
+        const modelParts = {
+            mainModel,
+        }
+
+        return [mainModel, modelParts, modelProperties]
+    }
+
+    /**
+     * Long joist rail bracket, which spans two dowel joists
      * @param {*} opts 
      * @returns Array with model, parts, and properties: [`geom3`, `Object.<string, geom3>`, `Object.<string, any>`]
      * @memberof joistFittings
@@ -527,6 +566,7 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         props: railFramesProps,
         baseRailFrame,
         simpleRailFrame,
+        simpleJoistRailBracket,
         joistRailBracket,
         singleRailFrame,
         doubleRailFrame,
