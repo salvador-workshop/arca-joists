@@ -57,7 +57,12 @@ const railFramesInit = ({ jscad, swcadJs }) => {
 
     const {
         math,
+        position,
     } = swcadJs.calcs
+
+    const {
+        reinforcedRectPanel,
+    } = swcadJs.components
 
 
     //==============================================================================
@@ -175,6 +180,8 @@ const railFramesInit = ({ jscad, swcadJs }) => {
 
         const {
             size,
+            dowelRadius,
+            dowelCtrDistance,
             type,
             scale,
             interfaceThickness,
@@ -187,7 +194,13 @@ const railFramesInit = ({ jscad, swcadJs }) => {
 
         const width = size[0]
         const depth = size[1]
-        const height = size[2]
+        const dowelDiam = dowelRadius * 2
+
+        const dowelHolderWidth = dowelDiam + (interfaceThickness * 2)
+        const railEdgeOffset = dowelDiam + interfaceThickness
+        const railCentreOffset = dowelCtrDistance + railEdgeOffset
+        const centreFrameWidth = width - (railCentreOffset * 2)
+        const sideFrameWidth = dowelCtrDistance + interfaceThickness
 
         /* ----------------------------------------
         * Preparing Model Properties, Dimensions
@@ -206,9 +219,16 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         /** Various dimensions for model */
         const modelDims = {
             size,
+            dowelRadius,
+            dowelCtrDistance,
+            dowelDiam,
+            dowelHolderWidth,
+            railEdgeOffset,
+            railCentreOffset,
+            centreFrameWidth,
+            sideFrameWidth,
             width,
             depth,
-            height,
             interfaceThickness,
             fitGap,
         }
@@ -257,17 +277,75 @@ const railFramesInit = ({ jscad, swcadJs }) => {
     * ------------------------------------- */
 
     /**
-     * New Model 1
+     * Base rail frame, without any attachments/fittings
      * @param {*} opts 
      * @returns Array with model, parts, and properties: [`geom3`, `Object.<string, geom3>`, `Object.<string, any>`]
-     * @memberof newModelParent
+     * @memberof joistFittings
      */
-    const simpleRailFrame = (opts) => {
+    const baseRailFrame = (opts) => {
         const defaults = railFramesDefaults()
         const initOpts = railFramesOpts(opts)
         const modelProperties = railFramesProps(initOpts)
 
-        const mainModel = cuboid()
+        const {
+            size,
+            dowelRadius,
+            dowelCtrDistance,
+            dowelDiam,
+            dowelHolderWidth,
+            railEdgeOffset,
+            railCentreOffset,
+            centreFrameWidth,
+            sideFrameWidth,
+            width,
+            depth,
+            interfaceThickness,
+            fitGap,
+        } = modelProperties.dims
+
+        const centreFrame = reinforcedRectPanel({
+            size: [
+                centreFrameWidth,
+                depth,
+                interfaceThickness
+            ],
+            reinforcementThickness: [interfaceThickness, interfaceThickness, interfaceThickness],
+            reinforcementPattern: 'full-double'
+        })[0]
+        const sideFrame = reinforcedRectPanel({
+            size: [
+                sideFrameWidth,
+                depth,
+                interfaceThickness
+            ],
+            reinforcementThickness: [interfaceThickness, interfaceThickness, interfaceThickness],
+        })[0]
+
+        const edgePtLeft = [centreFrameWidth / -2 + interfaceThickness, 0, 0]
+        const frameLeft = align({
+            modes: ['max', 'center', 'center'],
+            relativeTo: edgePtLeft
+        }, sideFrame)
+
+        const edgePtRight = [centreFrameWidth / 2 - interfaceThickness, 0, 0]
+        const frameRight = align({
+            modes: ['min', 'center', 'center'],
+            relativeTo: edgePtRight
+        }, sideFrame)
+
+        const frameAssembly = union(
+            position.ctr(centreFrame),
+            frameLeft,
+            frameRight
+        )
+
+        const frameAssemblyMeasurement = measureDimensions(frameAssembly)
+        const targetFrameWidth = width - (railEdgeOffset * 2)
+        console.log(size)
+        console.log(frameAssemblyMeasurement)
+        console.log(targetFrameWidth)
+
+        const mainModel = frameAssembly
         const modelParts = {
             mainModel,
         }
@@ -276,15 +354,20 @@ const railFramesInit = ({ jscad, swcadJs }) => {
     }
 
     /**
-     * New Model 2
+     * New Model 1
      * @param {*} opts 
      * @returns Array with model, parts, and properties: [`geom3`, `Object.<string, geom3>`, `Object.<string, any>`]
-     * @memberof newModelParent
+     * @memberof joistFittings
      */
-    const baseRailFrame = (opts) => {
+    const simpleRailFrame = (opts) => {
         const defaults = railFramesDefaults()
         const initOpts = railFramesOpts(opts)
         const modelProperties = railFramesProps(initOpts)
+
+        const bRailFrame = null
+        const fittingLine = null
+
+        const sRailFrameAssembly = null
 
         const mainModel = cuboid()
         const modelParts = {
@@ -298,7 +381,7 @@ const railFramesInit = ({ jscad, swcadJs }) => {
      * ...
      * @param {*} opts 
      * @returns Array with model, parts, and properties: [`geom3`, `Object.<string, geom3>`, `Object.<string, any>`]
-     * @memberof newModelParent
+     * @memberof joistFittings
      */
     const joistRailBracket = (opts) => {
         const defaults = railFramesDefaults()
@@ -317,7 +400,7 @@ const railFramesInit = ({ jscad, swcadJs }) => {
      * ...
      * @param {*} opts 
      * @returns Array with model, parts, and properties: [`geom3`, `Object.<string, geom3>`, `Object.<string, any>`]
-     * @memberof newModelParent
+     * @memberof joistFittings
      */
     const singleRailFrame = (opts) => {
         const defaults = railFramesDefaults()
@@ -336,7 +419,7 @@ const railFramesInit = ({ jscad, swcadJs }) => {
      * ...
      * @param {*} opts 
      * @returns Array with model, parts, and properties: [`geom3`, `Object.<string, geom3>`, `Object.<string, any>`]
-     * @memberof newModelParent
+     * @memberof joistFittings
      */
     const doubleRailFrame = (opts) => {
         const defaults = railFramesDefaults()
@@ -355,7 +438,7 @@ const railFramesInit = ({ jscad, swcadJs }) => {
      * ...
      * @param {*} opts 
      * @returns Array with model, parts, and properties: [`geom3`, `Object.<string, geom3>`, `Object.<string, any>`]
-     * @memberof newModelParent
+     * @memberof joistFittings
      */
     const tripleRailFrame = (opts) => {
         const defaults = railFramesDefaults()
@@ -373,8 +456,8 @@ const railFramesInit = ({ jscad, swcadJs }) => {
     return {
         defaults: railFramesDefaults,
         props: railFramesProps,
-        simpleRailFrame,
         baseRailFrame,
+        simpleRailFrame,
         joistRailBracket,
         singleRailFrame,
         doubleRailFrame,

@@ -66,6 +66,8 @@ const {
 const dowelAssemblyFittingsModule = require('./src/dowel-joist-panel-fittings.js')
 const dowelAssemblyFittings = dowelAssemblyFittingsModule.init({ jscad, swcadJs })
 
+const railFramesModule = require('./src/rail-frames.js')
+const railFrames = railFramesModule.init({ jscad, swcadJs })
 
 //==============================================================================
 
@@ -90,40 +92,45 @@ const panelDowelDiam = 3.25
 const panelDowelRadius = panelDowelDiam / 2
 
 
-const angleConnectorData = dowelAssemblyFittings.angleConnector({
-    ...commonOpts,
-})
-const angleConnectorModel = angleConnectorData[0]
-const angleConnectorProps = angleConnectorData[2]
-console.log('angleConnectorProps', angleConnectorProps)
+// const angleConnectorData = dowelAssemblyFittings.angleConnector({
+//     ...commonOpts,
+// })
+// const angleConnectorModel = angleConnectorData[0]
+// const angleConnectorProps = angleConnectorData[2]
+// console.log('angleConnectorProps', angleConnectorProps)
 
-const angleCornerConnectorData = dowelAssemblyFittings.angleCornerConnector({
-    ...commonOpts,
-})
-const angleCornerConnectorModel = angleCornerConnectorData[0]
-const angleCornerConnectorProps = angleCornerConnectorData[2]
-console.log('angleCornerConnectorProps', angleCornerConnectorProps)
+// const angleCornerConnectorData = dowelAssemblyFittings.angleCornerConnector({
+//     ...commonOpts,
+// })
+// const angleCornerConnectorModel = angleCornerConnectorData[0]
+// const angleCornerConnectorProps = angleCornerConnectorData[2]
+// console.log('angleCornerConnectorProps', angleCornerConnectorProps)
 
-const flatConnectorData = dowelAssemblyFittings.flatConnector({
-    ...commonOpts,
-})
-const flatConnectorModel = flatConnectorData[0]
-const flatConnectorProps = flatConnectorData[2]
-console.log('flatConnectorProps', flatConnectorProps)
+// const flatConnectorData = dowelAssemblyFittings.flatConnector({
+//     ...commonOpts,
+// })
+// const flatConnectorModel = flatConnectorData[0]
+// const flatConnectorProps = flatConnectorData[2]
+// console.log('flatConnectorProps', flatConnectorProps)
 
-const mortiseConnectorData = dowelAssemblyFittings.mortiseConnector({
-    ...commonOpts,
-})
-const mortiseConnectorModel = mortiseConnectorData[0]
-const mortiseConnectorProps = mortiseConnectorData[2]
-console.log('mortiseConnectorProps', mortiseConnectorProps)
+// const mortiseConnectorData = dowelAssemblyFittings.mortiseConnector({
+//     ...commonOpts,
+// })
+// const mortiseConnectorModel = mortiseConnectorData[0]
+// const mortiseConnectorProps = mortiseConnectorData[2]
+// console.log('mortiseConnectorProps', mortiseConnectorProps)
 
-const endConnectorData = dowelAssemblyFittings.endConnector({
+// const endConnectorData = dowelAssemblyFittings.endConnector({
+//     ...commonOpts,
+// })
+// const endConnectorModel = endConnectorData[0]
+// const endConnectorProps = endConnectorData[2]
+// console.log('endConnectorProps', endConnectorProps)
+
+const baseRail = railFrames.baseRailFrame({
     ...commonOpts,
-})
-const endConnectorModel = endConnectorData[0]
-const endConnectorProps = endConnectorData[2]
-console.log('endConnectorProps', endConnectorProps)
+    size: [300, 200]
+})[0]
 
 
 const layoutOpts = {
@@ -137,40 +144,41 @@ const layoutOpts = {
  * @returns `geom3` or `geom3[]`
  */
 function main() {
-    layout.addToLayout({
-        name: 'angleConnectorModel',
-        desc: '...',
-        layoutOpts,
-    }, angleConnectorModel);
+    // layout.addToLayout({
+    //     name: 'angleConnectorModel',
+    //     desc: '...',
+    //     layoutOpts,
+    // }, angleConnectorModel);
 
-    layout.addToLayout({
-        name: 'angleCornerConnectorModel',
-        desc: '...',
-        layoutOpts,
-    }, angleCornerConnectorModel);
+    // layout.addToLayout({
+    //     name: 'angleCornerConnectorModel',
+    //     desc: '...',
+    //     layoutOpts,
+    // }, angleCornerConnectorModel);
 
-    layout.addToLayout({
-        name: 'flatConnectorModel',
-        desc: '...',
-        layoutOpts,
-    }, flatConnectorModel);
+    // layout.addToLayout({
+    //     name: 'flatConnectorModel',
+    //     desc: '...',
+    //     layoutOpts,
+    // }, flatConnectorModel);
 
-    layout.addToLayout({
-        name: 'mortiseConnectorModel',
-        desc: '...',
-        layoutOpts,
-    }, mortiseConnectorModel);
+    // layout.addToLayout({
+    //     name: 'mortiseConnectorModel',
+    //     desc: '...',
+    //     layoutOpts,
+    // }, mortiseConnectorModel);
 
-    layout.addToLayout({
-        name: 'endConnectorModel',
-        desc: '...',
-        layoutOpts,
-    }, endConnectorModel);
+    // layout.addToLayout({
+    //     name: 'endConnectorModel',
+    //     desc: '...',
+    //     layoutOpts,
+    // }, endConnectorModel);
 
-    const layoutContent = layout.gridLayout({ layoutOpts });
+    // const layoutContent = layout.gridLayout({ layoutOpts });
 
-    return layoutContent;
+    // return layoutContent;
 
+    return baseRail
 }
 
 
