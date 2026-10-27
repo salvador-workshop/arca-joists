@@ -1,10 +1,6 @@
 "use strict"
 
-const openWebJoistModule = require('./open-web-joist.js')
-
 const dowelJoistPanelInit = ({ jscad, swcadJs }) => {
-    const openWebJoist = openWebJoistModule.init({ jscad, swcadJs })
-
     const {
         cylinder,
         cuboid,
@@ -33,6 +29,7 @@ const dowelJoistPanelInit = ({ jscad, swcadJs }) => {
 
     const {
         fittings,
+        reinforcements,
     } = swcadJs.components
 
 
@@ -109,7 +106,6 @@ const dowelJoistPanelInit = ({ jscad, swcadJs }) => {
      */
     const dowelJoistPanelOpts = (opts) => {
         const defaults = dowelJoistPanelDefaults()
-        console.log('dowelJoistPanelOpts() -- opts', opts)
 
         // User options
         const {
@@ -144,7 +140,6 @@ const dowelJoistPanelInit = ({ jscad, swcadJs }) => {
             ...stdOpts,
         }
 
-        console.log('dowelJoistPanelOpts() -- initOpts', initOpts)
 
         return initOpts
     }
@@ -159,7 +154,6 @@ const dowelJoistPanelInit = ({ jscad, swcadJs }) => {
      */
     const dowelJoistPanelProps = (opts) => {
         const defaults = dowelJoistPanelDefaults()
-        console.log('dowelJoistPanelProps() -- opts', opts)
 
         const {
             dowelRadius,
@@ -229,7 +223,6 @@ const dowelJoistPanelInit = ({ jscad, swcadJs }) => {
             points: modelPoints,
         }
 
-        console.log('dowelJoistPanelProps() -- modelProperties', modelProperties)
 
         return modelProperties
     }
@@ -256,7 +249,7 @@ const dowelJoistPanelInit = ({ jscad, swcadJs }) => {
                 dowelHolderLength,
             } = modelProps.dims
 
-            let dHolder = fittings.roundFitting({
+            let dHolder = fittings.doubleRoundFitting({
                 dowelRadius,
                 length: dowelHolderLength,
             })[0]
@@ -399,7 +392,7 @@ const dowelJoistPanelInit = ({ jscad, swcadJs }) => {
                 joistWebWidth,
             } = modelProps.dims
 
-            let joistWebs = openWebJoist({
+            let joistWebs = reinforcements.reinforcedJoist({
                 length,
                 width: joistWebWidth,
                 reinforcementLevel,

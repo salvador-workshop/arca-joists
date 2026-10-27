@@ -117,7 +117,6 @@ const dowelAssemblyFittingsInit = ({ jscad, swcadJs }) => {
      */
     const dowelAssemblyFittingsOpts = (opts) => {
         const defaults = dowelAssemblyFittingsDefaults()
-        console.log('dowelAssemblyFittingsOpts() -- opts', opts)
 
         // User options
         const {
@@ -144,7 +143,6 @@ const dowelAssemblyFittingsInit = ({ jscad, swcadJs }) => {
             ...stdOpts,
         }
 
-        console.log('dowelAssemblyFittingsOpts() -- initOpts', initOpts)
 
         return initOpts
     }
@@ -162,7 +160,6 @@ const dowelAssemblyFittingsInit = ({ jscad, swcadJs }) => {
      */
     const dowelAssemblyFittingsProps = (opts) => {
         const defaults = dowelAssemblyFittingsDefaults()
-        console.log('dowelAssemblyFittingsProps() -- opts', opts)
 
         const {
             dowelRadius,
@@ -379,7 +376,6 @@ const dowelAssemblyFittingsInit = ({ jscad, swcadJs }) => {
             components: modelComponents,
         }
 
-        console.log('dowelAssemblyFittingsProps() -- modelProperties', modelProperties)
 
         return modelProperties
     }
