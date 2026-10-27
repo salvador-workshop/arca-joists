@@ -61,6 +61,8 @@ const railFramesInit = ({ jscad, swcadJs }) => {
     } = swcadJs.calcs
 
     const {
+        componentLine,
+        fittings,
         reinforcements,
     } = swcadJs.components
 
@@ -202,6 +204,17 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         const centreFrameWidth = width - (railCentreOffset * 2)
         const sideFrameWidth = dowelCtrDistance + interfaceThickness
 
+        const joistWebEdgePtLeft = [centreFrameWidth / -2 - dowelDiam, 0, 0]
+        const joistWebEdgePtRight = [centreFrameWidth / 2 + dowelDiam, 0, 0]
+
+        const holderEdgeLeftOffset = centreFrameWidth / -2 + interfaceThickness
+        const holderEdgePtLeft1 = [holderEdgeLeftOffset, 0, 0]
+        const holderEdgePtLeft2 = [holderEdgeLeftOffset - dowelCtrDistance, 0, 0]
+
+        const holderEdgeRightOffset = centreFrameWidth / 2 - interfaceThickness
+        const holderEdgePtRight1 = [holderEdgeRightOffset, 0, 0]
+        const holderEdgePtRight2 = [holderEdgeRightOffset + dowelCtrDistance, 0, 0]
+
         const joistWebWidth = dowelCtrDistance - dowelDiam
         const joistReinforcementLevel = 1
 
@@ -241,6 +254,12 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         /** Various key points for model */
         const modelPoints = {
             centrePt: defaults.vals.points.centrePt,
+            joistWebEdgePtLeft,
+            joistWebEdgePtRight,
+            holderEdgePtLeft1,
+            holderEdgePtLeft2,
+            holderEdgePtRight1,
+            holderEdgePtRight2,
         }
 
         /** Components used by model */
@@ -281,6 +300,68 @@ const railFramesInit = ({ jscad, swcadJs }) => {
     * MODELLING FUNCTIONS
     * ------------------------------------- */
 
+    const simpleDowelHolderLine = ({
+        length
+    }) => {
+        const simDowelHolder = fittings.roundFitting({
+            dowelRadius: 3.25 / 2,
+            length: math.inchesToMm(5 / 16),
+        })[0]
+
+        const dhLineBase = componentLine({
+            endOffset: 0,
+            baseLineOffset: 0,
+            component: rotate([0, 0, TAU / 4], simDowelHolder),
+            startPt: [0, 0],
+            endPt: [0, length],
+            unitLength: math.inchesToMm(1),
+        })[1].componentSet
+
+        const dhLine = rotate([0, 0, TAU / 4], dhLineBase)
+
+        return dhLine
+    }
+
+    const inverseDowelHolderLine = ({
+        length
+    }) => {
+        const invDowelHolder = fittings.roundFitting({
+            dowelRadius: 3.25 / 2,
+            length: math.inchesToMm(5 / 16),
+        })[0]
+
+        const dhLine = componentLine({
+            endOffset: 0,
+            baseLineOffset: 0,
+            component: invDowelHolder,
+            startPt: [0, 0],
+            endPt: [0, length],
+            unitLength: math.inchesToMm(1),
+        })[1].componentSet
+
+        return dhLine
+    }
+
+    const doubleDowelHolderLine = ({
+        length
+    }) => {
+        const dblDowelHolder = fittings.roundFitting({
+            dowelRadius: 3.25 / 2,
+            length: math.inchesToMm(5 / 16),
+        })[0]
+
+        const dhLine = componentLine({
+            endOffset: 0,
+            baseLineOffset: 0,
+            component: dblDowelHolder,
+            startPt: [0, 0],
+            endPt: [0, length],
+            unitLength: math.inchesToMm(1),
+        })[1].componentSet
+
+        return dhLine
+    }
+
     /**
      * Base rail frame, without any attachments/fittings
      * @param {*} opts 
@@ -310,6 +391,11 @@ const railFramesInit = ({ jscad, swcadJs }) => {
             fitGap,
         } = modelProperties.dims
 
+        const {
+            joistWebEdgePtLeft,
+            joistWebEdgePtRight,
+        } = modelProperties.points
+
         const centreFrame = reinforcements.reinforcedRectPanel({
             size: [
                 centreFrameWidth,
@@ -326,16 +412,14 @@ const railFramesInit = ({ jscad, swcadJs }) => {
             reinforcementLevel: joistReinforcementLevel,
         })[0]
 
-        const edgePtLeft = [centreFrameWidth / -2 - dowelDiam, 0, 0]
         const frameLeft = align({
             modes: ['max', 'center', 'center'],
-            relativeTo: edgePtLeft
+            relativeTo: joistWebEdgePtLeft
         }, sideJoistWeb)
 
-        const edgePtRight = [centreFrameWidth / 2 + dowelDiam, 0, 0]
         const frameRight = align({
             modes: ['min', 'center', 'center'],
-            relativeTo: edgePtRight
+            relativeTo: joistWebEdgePtRight
         }, sideJoistWeb)
 
         const frameAssembly = union(
@@ -369,12 +453,61 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         const initOpts = railFramesOpts(opts)
         const modelProperties = railFramesProps(initOpts)
 
-        const bRailFrame = null
-        const fittingLine = null
+        const {
+            size,
+            width,
+            depth,
+            dowelRadius,
+            dowelCtrDistance,
+            dowelDiam,
+            dowelHolderWidth,
+            railEdgeOffset,
+            railCentreOffset,
+            centreFrameWidth,
+            sideFrameWidth,
+            joistWebWidth,
+            joistReinforcementLevel,
+            interfaceThickness,
+            fitGap,
+        } = modelProperties.dims
 
-        const sRailFrameAssembly = null
+        const {
+            holderEdgePtLeft1,
+            holderEdgePtLeft2,
+            holderEdgePtRight1,
+            holderEdgePtRight2,
+        } = modelProperties.points
 
-        const mainModel = cuboid()
+        const bRailFrame = baseRailFrame(opts)[0]
+        const fittingLine = simpleDowelHolderLine({ length: depth })
+
+        const fittingLineLeft1 = align({
+            modes: ['max', 'center', 'min'],
+            relativeTo: holderEdgePtLeft1
+        }, fittingLine)
+        const fittingLineLeft2 = align({
+            modes: ['max', 'center', 'min'],
+            relativeTo: holderEdgePtLeft2
+        }, fittingLine)
+
+        const fittingLineRight1 = align({
+            modes: ['min', 'center', 'min'],
+            relativeTo: holderEdgePtRight1
+        }, fittingLine)
+        const fittingLineRight2 = align({
+            modes: ['min', 'center', 'min'],
+            relativeTo: holderEdgePtRight2
+        }, fittingLine)
+
+        const sRailFrameAssembly = union(
+            position.ctrMin(bRailFrame),
+            fittingLineLeft1,
+            fittingLineLeft2,
+            fittingLineRight1,
+            fittingLineRight2,
+        )
+
+        const mainModel = sRailFrameAssembly
         const modelParts = {
             mainModel,
         }

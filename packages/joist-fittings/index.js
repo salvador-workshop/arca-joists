@@ -82,6 +82,11 @@ const commonOpts = {
     dowelCtrDistance: math.inchesToMm(1.25),
 }
 
+const commonRailFrameOpts = {
+    ...commonOpts,
+    size: [200, 120],
+}
+
 
 //------------------------------------------------------------------------------
 
@@ -128,8 +133,11 @@ const panelDowelRadius = panelDowelDiam / 2
 // console.log('endConnectorProps', endConnectorProps)
 
 const baseRail = railFrames.baseRailFrame({
-    ...commonOpts,
-    size: [300, 200]
+    ...commonRailFrameOpts
+})[0]
+
+const simpleRailFrame = railFrames.simpleRailFrame({
+    ...commonRailFrameOpts
 })[0]
 
 
@@ -178,7 +186,7 @@ function main() {
 
     // return layoutContent;
 
-    return baseRail
+    return simpleRailFrame
 }
 
 
