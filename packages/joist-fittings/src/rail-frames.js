@@ -2,54 +2,19 @@
 
 const railFramesInit = ({ jscad, swcadJs }) => {
     const {
-        cube,
-        cylinder,
-        sphere,
-        cylinderElliptic,
-        circle,
         cuboid,
-        roundedCuboid,
-        roundedCylinder,
-        roundedRectangle,
-        rectangle,
-        triangle,
     } = jscad.primitives
 
     const {
         align,
-        translate,
         rotate,
-        mirror
     } = jscad.transforms
 
     const {
-        intersect,
-        subtract,
         union,
-        scission
     } = jscad.booleans
 
-    const {
-        extrudeLinear,
-        extrudeRotate,
-        project
-    } = jscad.extrusions
-
-    const {
-        measureDimensions,
-        measureBoundingBox,
-        measureVolume
-    } = jscad.measurements
-
-    const {
-        hull,
-        hullChain
-    } = jscad.hulls
-
-    const { vectorText } = jscad.text
-    const { toOutlines } = jscad.geometries.geom2
     const { TAU } = jscad.maths.constants
-    const { colorize } = jscad.colors
 
     const {
         standards,
@@ -133,7 +98,6 @@ const railFramesInit = ({ jscad, swcadJs }) => {
      */
     const railFramesOpts = (opts) => {
         const defaults = railFramesDefaults()
-        console.log('railFramesOpts() -- opts', opts)
 
         // User options
         const {
@@ -160,7 +124,6 @@ const railFramesInit = ({ jscad, swcadJs }) => {
             ...stdOpts,
         }
 
-        console.log('railFramesOpts() -- initOpts', initOpts)
 
         return initOpts
     }
@@ -178,7 +141,6 @@ const railFramesInit = ({ jscad, swcadJs }) => {
      */
     const railFramesProps = (opts) => {
         const defaults = railFramesDefaults()
-        console.log('railFramesProps() -- opts', opts)
 
         const {
             size,
@@ -288,7 +250,6 @@ const railFramesInit = ({ jscad, swcadJs }) => {
             components: modelComponents,
         }
 
-        console.log('railFramesProps() -- modelProperties', modelProperties)
 
         return modelProperties
     }
@@ -374,21 +335,11 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         const modelProperties = railFramesProps(initOpts)
 
         const {
-            size,
-            width,
             depth,
-            dowelRadius,
-            dowelCtrDistance,
-            dowelDiam,
-            dowelHolderWidth,
-            railEdgeOffset,
-            railCentreOffset,
             centreFrameWidth,
-            sideFrameWidth,
             joistWebWidth,
             joistReinforcementLevel,
             interfaceThickness,
-            fitGap,
         } = modelProperties.dims
 
         const {
@@ -428,12 +379,6 @@ const railFramesInit = ({ jscad, swcadJs }) => {
             frameRight
         )
 
-        const frameAssemblyMeasurement = measureDimensions(frameAssembly)
-        const targetFrameWidth = width - (railEdgeOffset * 2)
-        console.log(size)
-        console.log(frameAssemblyMeasurement)
-        console.log(targetFrameWidth)
-
         const mainModel = frameAssembly
         const modelParts = {
             mainModel,
@@ -454,21 +399,7 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         const modelProperties = railFramesProps(initOpts)
 
         const {
-            size,
-            width,
             depth,
-            dowelRadius,
-            dowelCtrDistance,
-            dowelDiam,
-            dowelHolderWidth,
-            railEdgeOffset,
-            railCentreOffset,
-            centreFrameWidth,
-            sideFrameWidth,
-            joistWebWidth,
-            joistReinforcementLevel,
-            interfaceThickness,
-            fitGap,
         } = modelProperties.dims
 
         const {
