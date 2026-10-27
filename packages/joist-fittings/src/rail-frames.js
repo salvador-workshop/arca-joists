@@ -8,10 +8,12 @@ const railFramesInit = ({ jscad, swcadJs }) => {
     const {
         align,
         rotate,
+        translate,
     } = jscad.transforms
 
     const {
         union,
+        subtract,
     } = jscad.booleans
 
     const { TAU } = jscad.maths.constants
@@ -53,6 +55,8 @@ const railFramesInit = ({ jscad, swcadJs }) => {
                 ],
                 dowelRadius: 3.25 / 2,
                 dowelCtrDistance: math.inchesToMm(1.25),
+                dowelHolderLength: math.inchesToMm(5 / 16),
+                railBracketDepth: math.inchesToMm(3 / 8),
             },
             points: {
                 centrePt: [0, 0, 0]
@@ -78,6 +82,8 @@ const railFramesInit = ({ jscad, swcadJs }) => {
             size: defaultValues.dims.size,
             dowelRadius: defaultValues.dims.dowelRadius,
             dowelCtrDistance: defaultValues.dims.dowelCtrDistance,
+            dowelHolderLength: defaultValues.dims.dowelHolderLength,
+            railBracketDepth: defaultValues.dims.railBracketDepth,
         }
 
         return {
@@ -105,6 +111,8 @@ const railFramesInit = ({ jscad, swcadJs }) => {
             size = defaults.opts.size,
             dowelRadius = defaults.opts.dowelRadius,
             dowelCtrDistance = defaults.opts.dowelCtrDistance,
+            dowelHolderLength = defaults.opts.dowelHolderLength,
+            railBracketDepth = defaults.opts.railBracketDepth,
             type = defaults.opts.type,
             scale = defaults.opts.scale,
             interfaceThickness = defaults.opts.interfaceThickness,
@@ -122,6 +130,8 @@ const railFramesInit = ({ jscad, swcadJs }) => {
             size,
             dowelRadius,
             dowelCtrDistance,
+            dowelHolderLength,
+            railBracketDepth,
             ...stdOpts,
         }
 
@@ -147,6 +157,8 @@ const railFramesInit = ({ jscad, swcadJs }) => {
             size,
             dowelRadius,
             dowelCtrDistance,
+            dowelHolderLength,
+            railBracketDepth,
             type,
             scale,
             interfaceThickness,
@@ -194,6 +206,7 @@ const railFramesInit = ({ jscad, swcadJs }) => {
 
         const simpleJoistRailBracketWidth = dowelCtrDistance + dowelDiam + (interfaceThickness * 4)
         const joistRailBracketWidth = width + (interfaceThickness * 2)
+        const railBracketHeight = railBracketDepth * constants.PHI_INV
 
         /* ----------------------------------------
         * Preparing Model Properties, Dimensions
@@ -217,8 +230,11 @@ const railFramesInit = ({ jscad, swcadJs }) => {
             depth,
             dowelRadius,
             dowelCtrDistance,
+            railBracketDepth,
+            railBracketHeight,
             dowelDiam,
             dowelHolderWidth,
+            dowelHolderLength,
             railEdgeOffset,
             railCentreOffset,
             centreFrameWidth,
@@ -282,11 +298,13 @@ const railFramesInit = ({ jscad, swcadJs }) => {
     * ------------------------------------- */
 
     const simpleDowelHolderLine = ({
-        length
+        length,
+        dowelRadius,
+        dowelHolderLength,
     }) => {
         const simDowelHolder = fittings.roundFitting({
-            dowelRadius: 3.25 / 2,
-            length: math.inchesToMm(5 / 16),
+            dowelRadius,
+            length: dowelHolderLength,
         })[0]
 
         const dhLineBase = componentLine({
@@ -304,11 +322,13 @@ const railFramesInit = ({ jscad, swcadJs }) => {
     }
 
     const inverseDowelHolderLine = ({
-        length
+        length,
+        dowelRadius,
+        dowelHolderLength,
     }) => {
-        const invDowelHolder = fittings.roundFitting({
-            dowelRadius: 3.25 / 2,
-            length: math.inchesToMm(5 / 16),
+        const invDowelHolder = fittings.inverseRoundFitting({
+            dowelRadius,
+            length: dowelHolderLength,
         })[0]
 
         const dhLine = componentLine({
@@ -324,11 +344,13 @@ const railFramesInit = ({ jscad, swcadJs }) => {
     }
 
     const doubleDowelHolderLine = ({
-        length
+        length,
+        dowelRadius,
+        dowelHolderLength,
     }) => {
-        const dblDowelHolder = fittings.roundFitting({
-            dowelRadius: 3.25 / 2,
-            length: math.inchesToMm(5 / 16),
+        const dblDowelHolder = fittings.doubleRoundFitting({
+            dowelRadius,
+            length: dowelHolderLength,
         })[0]
 
         const dhLine = componentLine({
@@ -420,6 +442,8 @@ const railFramesInit = ({ jscad, swcadJs }) => {
 
         const {
             depth,
+            dowelRadius,
+            dowelHolderLength,
         } = modelProperties.dims
 
         const {
@@ -430,7 +454,11 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         } = modelProperties.points
 
         const bRailFrame = baseRailFrame(opts)[0]
-        const fittingLine = simpleDowelHolderLine({ length: depth })
+        const fittingLine = simpleDowelHolderLine({
+            length: depth,
+            dowelRadius,
+            dowelHolderLength,
+        })
 
         const fittingLineLeft1 = align({
             modes: ['max', 'center', 'min'],
@@ -477,7 +505,101 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         const initOpts = railFramesOpts(opts)
         const modelProperties = railFramesProps(initOpts)
 
-        const mainModel = cuboid()
+        const {
+            size,
+            width,
+            depth,
+            dowelRadius,
+            dowelCtrDistance,
+            railBracketDepth,
+            railBracketHeight,
+            dowelDiam,
+            dowelHolderWidth,
+            railEdgeOffset,
+            railCentreOffset,
+            centreFrameWidth,
+            joistCtrDistance,
+            sideFrameWidth,
+            joistWebWidth,
+            invCutawayHeight,
+            joistRailBracketCutawaySize,
+            simpleJoistRailBracketWidth,
+            joistRailBracketWidth,
+            interfaceThickness,
+            fitGap,
+        } = modelProperties.dims
+
+        const {
+            centrePt,
+            joistWebEdgePtLeft,
+            joistWebEdgePtRight,
+            holderEdgePtLeft1,
+            holderEdgePtLeft2,
+            holderEdgePtRight1,
+            holderEdgePtRight2,
+        } = modelProperties.points
+
+        const bracketSurfaceLip = align(
+            { modes: ['center', 'min', 'min'] },
+            cuboid({
+                size: [
+                    simpleJoistRailBracketWidth,
+                    interfaceThickness,
+                    railBracketDepth,
+                ]
+            }))
+        const bracketSurfaceBase = align(
+            { modes: ['center', 'min', 'min'] },
+            cuboid({
+                size: [
+                    simpleJoistRailBracketWidth,
+                    railBracketHeight,
+                    interfaceThickness,
+                ]
+            }))
+        const bracketBodyBase = union(
+            bracketSurfaceLip,
+            bracketSurfaceBase
+        )
+
+        const bracketCutaway = position.ctrMin(cuboid({
+            size: [
+                joistRailBracketCutawaySize[0],
+                railBracketHeight * 3,
+                joistRailBracketCutawaySize[1],
+            ]
+        }))
+        const bracketCutaways = union(
+            translate([dowelCtrDistance / -2, 0, 0], bracketCutaway),
+            translate([dowelCtrDistance / 2, 0, 0], bracketCutaway)
+        )
+
+        const bracketSurface = subtract(
+            bracketBodyBase,
+            bracketCutaways
+        )
+
+        const invDowelHolder = align(
+            { modes: ['center', 'min', 'min'] },
+            fittings.inverseRoundFitting({
+                dowelRadius,
+                length: railBracketHeight,
+            })[0])
+        const holders = union(
+            translate([dowelCtrDistance / -2, 0, 0], invDowelHolder),
+            translate([dowelCtrDistance / 2, 0, 0], invDowelHolder)
+        )
+
+        const shortSupportDepth = railBracketDepth - joistRailBracketCutawaySize[1]
+        const angleSupportFull = null
+        const angleSupportOverHolder = null
+
+        const bracketAssembly = union(
+            bracketSurface,
+            holders,
+        )
+
+        const mainModel = bracketAssembly
         const modelParts = {
             mainModel,
         }
