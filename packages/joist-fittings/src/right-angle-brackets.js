@@ -2,54 +2,22 @@
 
 const angleBracketsInit = ({ jscad, swcadJs }) => {
     const {
-        cube,
         cylinder,
-        sphere,
-        cylinderElliptic,
-        circle,
         cuboid,
-        roundedCuboid,
-        roundedCylinder,
-        roundedRectangle,
-        rectangle,
-        triangle,
     } = jscad.primitives
 
     const {
         align,
         translate,
         rotate,
-        mirror
     } = jscad.transforms
 
     const {
-        intersect,
         subtract,
         union,
-        scission
     } = jscad.booleans
 
-    const {
-        extrudeLinear,
-        extrudeRotate,
-        project
-    } = jscad.extrusions
-
-    const {
-        measureDimensions,
-        measureBoundingBox,
-        measureVolume
-    } = jscad.measurements
-
-    const {
-        hull,
-        hullChain
-    } = jscad.hulls
-
-    const { vectorText } = jscad.text
-    const { toOutlines } = jscad.geometries.geom2
     const { TAU } = jscad.maths.constants
-    const { colorize } = jscad.colors
 
     const {
         standards,
@@ -57,6 +25,7 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
 
     const {
         math,
+        position,
     } = swcadJs.calcs
 
 
@@ -86,7 +55,7 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
                 depthToJoistCtr: math.inchesToMm(1.5),
                 widthBetweenJoistCtrs: math.inchesToMm(3),
                 height: math.inchesToMm(1 / 8),
-                thickness: math.inchesToMm(1 / 8),
+                thickness: math.inchesToMm(5 / 32),
             },
             points: {
                 centrePt: [0, 0, 0]
@@ -137,7 +106,6 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
      */
     const angleBracketsOpts = (opts) => {
         const defaults = angleBracketsDefaults()
-        console.log('angleBracketsOpts() -- opts', opts)
 
         // User options
         const {
@@ -174,7 +142,6 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
             ...stdOpts,
         }
 
-        console.log('angleBracketsOpts() -- initOpts', initOpts)
 
         return initOpts
     }
@@ -192,7 +159,6 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
      */
     const angleBracketsProps = (opts) => {
         const defaults = angleBracketsDefaults()
-        console.log('angleBracketsProps() -- opts', opts)
 
         const {
             dowelRadius,
@@ -213,16 +179,22 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
         * Prop calculations
         * ------------------------------------- */
 
+        const dowelCutawayRadius = dowelRadius + (fitGap / 2)
+
         const angleSupportGap = interfaceThickness * 2
         const endGap = interfaceThickness
         const offsetJoistCtrToEdge = dowelCtrDistance / 2 + dowelRadius + interfaceThickness
         const offsetJoistCtrToAngSupport = dowelCtrDistance / 2 + dowelRadius + (interfaceThickness * 2)
 
-        const totalWidth = widthToJoistCtr + offsetJoistCtrToEdge
-        const totalDepth = depthToJoistCtr + offsetJoistCtrToEdge
+        const totalWidthInt = widthToJoistCtr + offsetJoistCtrToEdge
+        const totalDepthInt = depthToJoistCtr + offsetJoistCtrToEdge
+        const widthIntCutaway = totalWidthInt - thickness
+        const depthIntCutaway = totalDepthInt - thickness
 
-        const widthAngleSupport = widthToJoistCtr - offsetJoistCtrToAngSupport
-        const depthAngleSupport = depthToJoistCtr - offsetJoistCtrToAngSupport
+        const totalWidthExt = totalWidthInt + thickness
+        const totalDepthExt = totalDepthInt + thickness
+        const widthExtCutaway = totalWidthInt
+        const depthExtCutaway = totalDepthInt
 
         /* ----------------------------------------
         * Preparing Model Properties, Dimensions
@@ -249,10 +221,15 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
             widthBetweenJoistCtrs,
             height,
             thickness,
-            totalWidth,
-            totalDepth,
-            widthAngleSupport,
-            depthAngleSupport,
+            dowelCutawayRadius,
+            totalWidthInt,
+            totalDepthInt,
+            widthIntCutaway,
+            depthIntCutaway,
+            totalWidthExt,
+            totalDepthExt,
+            widthExtCutaway,
+            depthExtCutaway,
             interfaceThickness,
             fitGap,
         }
@@ -288,7 +265,6 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
             components: modelComponents,
         }
 
-        console.log('angleBracketsProps() -- modelProperties', modelProperties)
 
         return modelProperties
     }
@@ -316,34 +292,74 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
         } = modelProperties.opts
 
         const {
-            dowelRadius,
             dowelCtrDistance,
             widthToJoistCtr,
             depthToJoistCtr,
-            widthBetweenJoistCtrs,
             height,
             thickness,
-            totalWidth,
-            totalDepth,
-            widthAngleSupport,
-            depthAngleSupport,
-            interfaceThickness,
-            fitGap,
+            dowelCutawayRadius,
+            totalWidthInt,
+            totalDepthInt,
+            widthIntCutaway,
+            depthIntCutaway,
+            totalWidthExt,
+            totalDepthExt,
+            widthExtCutaway,
+            depthExtCutaway,
         } = modelProperties.dims
 
-        const bracketBodyBlank = null
-        const bracketBodyCutaway = null
-        const bracketBodyBase = null
+        const blankSize = [
+            orientation == 'internal' ? totalWidthInt : totalWidthExt,
+            orientation == 'internal' ? totalDepthInt : totalDepthExt,
+            height,
+        ]
 
-        const joistDowelCutawayBase = null
-        const joistDowelCutaways = null
+        const cutawaySize = [
+            orientation == 'internal' ? widthIntCutaway : widthExtCutaway,
+            orientation == 'internal' ? depthIntCutaway : depthExtCutaway,
+            height,
+        ]
 
-        const bracketBody = null
-        const bracketAngleSupport = null
+        const bracketBodyBlank = cuboid({ size: blankSize })
+        const bracketBodyCutaway = cuboid({ size: cutawaySize })
+        let bracketBodyBase = subtract(
+            align({ modes: ['max', 'max', 'center'] }, bracketBodyBlank),
+            align({ modes: ['max', 'max', 'center'] }, bracketBodyCutaway)
+        )
 
-        const bracketAssembly = null
+        const bracketBaseAlignmentPt = orientation == 'internal' ? [0, 0, 0] : [-thickness, -thickness, 0]
+        bracketBodyBase = align({
+            modes: ['min', 'min', 'center'],
+            relativeTo: bracketBaseAlignmentPt,
+        }, bracketBodyBase)
 
-        const mainModel = cuboid()
+        const joistDowelCutawayBase = cylinder({
+            radius: dowelCutawayRadius,
+            height: height * 1.5
+        })
+        const joistDowelCutawayPair = position.ctr(
+            union(
+                joistDowelCutawayBase,
+                translate([dowelCtrDistance, 0, 0], joistDowelCutawayBase)
+            )
+        )
+        const jDowelCutawayPairX = translate([widthToJoistCtr, 0, 0], joistDowelCutawayPair)
+        const jDowelCutawayPairY = translate(
+            [0, depthToJoistCtr, 0],
+            rotate([0, 0, TAU / 4], joistDowelCutawayPair)
+        )
+
+        const joistDowelCutaways = union(
+            jDowelCutawayPairX,
+            jDowelCutawayPairY,
+        )
+
+        const bracketAssembly = subtract(
+            bracketBodyBase,
+            joistDowelCutaways,
+        )
+
+        const mainModel = bracketAssembly
         const modelParts = {
             mainModel,
         }
@@ -374,10 +390,15 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
             widthBetweenJoistCtrs,
             height,
             thickness,
-            totalWidth,
-            totalDepth,
-            widthAngleSupport,
-            depthAngleSupport,
+            dowelCutawayRadius,
+            totalWidthInt,
+            totalDepthInt,
+            widthIntCutaway,
+            depthIntCutaway,
+            totalWidthExt,
+            totalDepthExt,
+            widthExtCutaway,
+            depthExtCutaway,
             interfaceThickness,
             fitGap,
         } = modelProperties.dims
@@ -388,9 +409,6 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
 
         const joistDowelCutawayBase = null
         const joistDowelCutaways = null
-
-        const bracketBody = null
-        const bracketAngleSupport = null
 
         const bracketAssembly = null
 
@@ -425,10 +443,15 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
             widthBetweenJoistCtrs,
             height,
             thickness,
-            totalWidth,
-            totalDepth,
-            widthAngleSupport,
-            depthAngleSupport,
+            dowelCutawayRadius,
+            totalWidthInt,
+            totalDepthInt,
+            widthIntCutaway,
+            depthIntCutaway,
+            totalWidthExt,
+            totalDepthExt,
+            widthExtCutaway,
+            depthExtCutaway,
             interfaceThickness,
             fitGap,
         } = modelProperties.dims
@@ -439,9 +462,6 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
 
         const joistDowelCutawayBase = null
         const joistDowelCutaways = null
-
-        const bracketBody = null
-        const bracketAngleSupport = null
 
         const bracketAssembly = null
 
