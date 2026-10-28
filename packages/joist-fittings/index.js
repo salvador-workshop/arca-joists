@@ -69,6 +69,9 @@ const dowelAssemblyFittings = dowelAssemblyFittingsModule.init({ jscad, swcadJs 
 const railFramesModule = require('./src/rail-frames.js')
 const railFrames = railFramesModule.init({ jscad, swcadJs })
 
+const rightAngleBracketsModule = require('./src/right-angle-brackets.js')
+const rightAngleBrackets = rightAngleBracketsModule.init({ jscad, swcadJs })
+
 //==============================================================================
 
 
@@ -85,6 +88,14 @@ const commonOpts = {
 const commonRailFrameOpts = {
     ...commonOpts,
     size: [200, 120],
+}
+
+const rightAngleBracketsOpts = {
+    ...commonOpts,
+    widthToJoistCtr: math.inchesToMm(1.5),
+    depthToJoistCtr: math.inchesToMm(1.5),
+    height: math.inchesToMm(1 / 8),
+    thickness: math.inchesToMm(5 / 32),
 }
 
 
@@ -156,6 +167,15 @@ const doubleRailFrame = railFrames.doubleRailFrame({
     ...commonRailFrameOpts
 })[0]
 
+const rightAngleColumnBracketInt = rightAngleBrackets.rightAngleColumnBracket({
+    ...rightAngleBracketsOpts
+})[0]
+
+const rightAngleColumnBracketExt = rightAngleBrackets.rightAngleColumnBracket({
+    ...rightAngleBracketsOpts,
+    orientation: 'external'
+})[0]
+
 
 const layoutOpts = {
     layoutMargin: math.inchesToMm(2),
@@ -202,7 +222,7 @@ function main() {
 
     // return layoutContent;
 
-    return doubleRailFrame
+    return rightAngleColumnBracketExt
 }
 
 
