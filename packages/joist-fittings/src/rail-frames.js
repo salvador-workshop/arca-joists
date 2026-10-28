@@ -209,6 +209,10 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         const joistRailBracketWidth = width + (interfaceThickness * 2)
         const railBracketHeight = railBracketDepth * constants.PHI_INV
 
+        const bracketGap = dowelHolderWidth * 2
+        const singleBracketDowelHolderLineDepth = depth - bracketGap - railBracketHeight
+        const doubleBracketDowelHolderLineDepth = singleBracketDowelHolderLineDepth - bracketGap - railBracketHeight
+
         /* ----------------------------------------
         * Preparing Model Properties, Dimensions
         * ------------------------------------- */
@@ -246,6 +250,8 @@ const railFramesInit = ({ jscad, swcadJs }) => {
             joistRailBracketCutawaySize,
             simpleJoistRailBracketWidth,
             joistRailBracketWidth,
+            singleBracketDowelHolderLineDepth,
+            doubleBracketDowelHolderLineDepth,
             interfaceThickness,
             fitGap,
         }
@@ -332,14 +338,16 @@ const railFramesInit = ({ jscad, swcadJs }) => {
             length: dowelHolderLength,
         })[0]
 
-        const dhLine = componentLine({
+        const dhLineBase = componentLine({
             endOffset: 0,
             baseLineOffset: 0,
-            component: invDowelHolder,
+            component: rotate([0, 0, TAU / 4], invDowelHolder),
             startPt: [0, 0],
             endPt: [0, length],
             unitLength: math.inchesToMm(1),
         })[1].componentSet
+
+        const dhLine = rotate([0, 0, TAU / 4], dhLineBase)
 
         return dhLine
     }
@@ -715,7 +723,71 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         const initOpts = railFramesOpts(opts)
         const modelProperties = railFramesProps(initOpts)
 
-        const mainModel = cuboid()
+        const {
+            depth,
+            dowelRadius,
+            dowelHolderLength,
+            singleBracketDowelHolderLineDepth,
+        } = modelProperties.dims
+
+        const {
+            holderEdgePtLeft1,
+            holderEdgePtLeft2,
+            holderEdgePtRight1,
+            holderEdgePtRight2,
+        } = modelProperties.points
+
+        const bRailFrame = align({
+            modes: ['center', 'max', 'min']
+        }, baseRailFrame(opts)[0])
+        const fittingLine = inverseDowelHolderLine({
+            length: singleBracketDowelHolderLineDepth,
+            dowelRadius,
+            dowelHolderLength,
+        })
+
+        const fittingLineLeft1 = align({
+            modes: ['max', 'max', 'min'],
+            relativeTo: holderEdgePtLeft1
+        }, fittingLine)
+        const fittingLineLeft2 = align({
+            modes: ['max', 'max', 'min'],
+            relativeTo: holderEdgePtLeft2
+        }, fittingLine)
+
+        const fittingLineRight1 = align({
+            modes: ['min', 'max', 'min'],
+            relativeTo: holderEdgePtRight1
+        }, fittingLine)
+        const fittingLineRight2 = align({
+            modes: ['min', 'max', 'min'],
+            relativeTo: holderEdgePtRight2
+        }, fittingLine)
+
+        const sRail = joistRailBracket(opts)[0]
+
+        const baseFrame = union(
+            bRailFrame,
+            fittingLineLeft1,
+            fittingLineLeft2,
+            fittingLineRight1,
+            fittingLineRight2,
+        )
+
+        const topRail = align(
+            { modes: ['center', 'min', 'min'] },
+            sRail
+        )
+
+        const sRailFrameAssembly = union(
+            align(
+                { modes: ['center', 'min', 'min'] },
+                baseFrame,
+            ),
+            topRail,
+        )
+
+        const mainModel = position.ctr(sRailFrameAssembly)
         const modelParts = {
             mainModel,
         }
@@ -742,25 +814,6 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         return [mainModel, modelParts, modelProperties]
     }
 
-    /**
-     * ...
-     * @param {*} opts 
-     * @returns Array with model, parts, and properties: [`geom3`, `Object.<string, geom3>`, `Object.<string, any>`]
-     * @memberof joistFittings
-     */
-    const tripleRailFrame = (opts) => {
-        const defaults = railFramesDefaults()
-        const initOpts = railFramesOpts(opts)
-        const modelProperties = railFramesProps(initOpts)
-
-        const mainModel = cuboid()
-        const modelParts = {
-            mainModel,
-        }
-
-        return [mainModel, modelParts, modelProperties]
-    }
-
     return {
         defaults: railFramesDefaults,
         props: railFramesProps,
@@ -770,7 +823,6 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         joistRailBracket,
         singleRailFrame,
         doubleRailFrame,
-        tripleRailFrame,
     }
 }
 

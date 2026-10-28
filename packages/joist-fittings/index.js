@@ -148,6 +148,10 @@ const joistRailBracket = railFrames.joistRailBracket({
     ...commonRailFrameOpts
 })[0]
 
+const singleRailFrame = railFrames.singleRailFrame({
+    ...commonRailFrameOpts
+})[0]
+
 
 const layoutOpts = {
     layoutMargin: math.inchesToMm(2),
@@ -194,7 +198,7 @@ function main() {
 
     // return layoutContent;
 
-    return joistRailBracket
+    return singleRailFrame
 }
 
 
