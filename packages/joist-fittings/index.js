@@ -152,6 +152,10 @@ const singleRailFrame = railFrames.singleRailFrame({
     ...commonRailFrameOpts
 })[0]
 
+const doubleRailFrame = railFrames.doubleRailFrame({
+    ...commonRailFrameOpts
+})[0]
+
 
 const layoutOpts = {
     layoutMargin: math.inchesToMm(2),
@@ -198,7 +202,7 @@ function main() {
 
     // return layoutContent;
 
-    return singleRailFrame
+    return doubleRailFrame
 }
 
 

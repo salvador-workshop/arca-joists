@@ -209,7 +209,7 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         const joistRailBracketWidth = width + (interfaceThickness * 2)
         const railBracketHeight = railBracketDepth * constants.PHI_INV
 
-        const bracketGap = dowelHolderWidth * 2
+        const bracketGap = dowelHolderWidth * 2.25
         const singleBracketDowelHolderLineDepth = depth - bracketGap - railBracketHeight
         const doubleBracketDowelHolderLineDepth = singleBracketDowelHolderLineDepth - bracketGap - railBracketHeight
 
@@ -713,7 +713,7 @@ const railFramesInit = ({ jscad, swcadJs }) => {
     }
 
     /**
-     * ...
+     * Joist rail frame, with one bearing surface
      * @param {*} opts 
      * @returns Array with model, parts, and properties: [`geom3`, `Object.<string, geom3>`, `Object.<string, any>`]
      * @memberof joistFittings
@@ -796,7 +796,7 @@ const railFramesInit = ({ jscad, swcadJs }) => {
     }
 
     /**
-     * ...
+     * Joist rail frame, with two bearing surfaces
      * @param {*} opts 
      * @returns Array with model, parts, and properties: [`geom3`, `Object.<string, geom3>`, `Object.<string, any>`]
      * @memberof joistFittings
@@ -806,7 +806,79 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         const initOpts = railFramesOpts(opts)
         const modelProperties = railFramesProps(initOpts)
 
-        const mainModel = cuboid()
+        const {
+            depth,
+            dowelRadius,
+            dowelHolderLength,
+            doubleBracketDowelHolderLineDepth,
+        } = modelProperties.dims
+
+        const {
+            holderEdgePtLeft1,
+            holderEdgePtLeft2,
+            holderEdgePtRight1,
+            holderEdgePtRight2,
+        } = modelProperties.points
+
+        const bRailFrame = align({
+            modes: ['center', 'center', 'min']
+        }, baseRailFrame(opts)[0])
+        const fittingLine = inverseDowelHolderLine({
+            length: doubleBracketDowelHolderLineDepth,
+            dowelRadius,
+            dowelHolderLength,
+        })
+
+        const fittingLineLeft1 = align({
+            modes: ['max', 'center', 'min'],
+            relativeTo: holderEdgePtLeft1
+        }, fittingLine)
+        const fittingLineLeft2 = align({
+            modes: ['max', 'center', 'min'],
+            relativeTo: holderEdgePtLeft2
+        }, fittingLine)
+
+        const fittingLineRight1 = align({
+            modes: ['min', 'center', 'min'],
+            relativeTo: holderEdgePtRight1
+        }, fittingLine)
+        const fittingLineRight2 = align({
+            modes: ['min', 'center', 'min'],
+            relativeTo: holderEdgePtRight2
+        }, fittingLine)
+
+        const sRail = joistRailBracket(opts)[0]
+
+        const baseFrame = union(
+            bRailFrame,
+            fittingLineLeft1,
+            fittingLineLeft2,
+            fittingLineRight1,
+            fittingLineRight2,
+        )
+
+        const topRail = align(
+            {
+                modes: ['center', 'min', 'min'],
+                relativeTo: [0, depth / -2, 0]
+            },
+            sRail
+        )
+        const bottomRail = align(
+            {
+                modes: ['center', 'max', 'min'],
+                relativeTo: [0, depth / 2, 0]
+            },
+            sRail
+        )
+
+        const dRailFrameAssembly = union(
+            baseFrame,
+            topRail,
+            bottomRail,
+        )
+
+        const mainModel = position.ctr(dRailFrameAssembly)
         const modelParts = {
             mainModel,
         }
