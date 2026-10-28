@@ -73,11 +73,18 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
     const angleBracketsDefaults = () => {
         /** Specific value declarations */
         const defaultValues = {
+            constants: {
+                orientations: ['external', 'internal']
+            },
+            opts: {
+                orientation: 'internal'
+            },
             dims: {
                 dowelRadius: 3.5 / 2,
                 dowelCtrDistance: math.inchesToMm(1.25),
-                widthToJoistCtr: math.inchesToMm(2.5),
-                depthToJoistCtr: math.inchesToMm(2.5),
+                widthToJoistCtr: math.inchesToMm(1.5),
+                depthToJoistCtr: math.inchesToMm(1.5),
+                widthBetweenJoistCtrs: math.inchesToMm(3),
                 height: math.inchesToMm(1 / 8),
                 thickness: math.inchesToMm(1 / 8),
             },
@@ -101,7 +108,14 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
         /** Computed values for option defaults */
         const defaultOpts = {
             ...standardOpts,
-            size: defaultValues.dims.size,
+            dowelRadius: defaultValues.dims.dowelRadius,
+            dowelCtrDistance: defaultValues.dims.dowelCtrDistance,
+            widthToJoistCtr: defaultValues.dims.widthToJoistCtr,
+            depthToJoistCtr: defaultValues.dims.depthToJoistCtr,
+            widthBetweenJoistCtrs: defaultValues.dims.widthBetweenJoistCtrs,
+            height: defaultValues.dims.height,
+            thickness: defaultValues.dims.thickness,
+            orientation: defaultValues.opts.orientation,
         }
 
         return {
@@ -131,8 +145,10 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
             dowelCtrDistance = defaults.opts.dowelCtrDistance,
             widthToJoistCtr = defaults.opts.widthToJoistCtr,
             depthToJoistCtr = defaults.opts.depthToJoistCtr,
+            widthBetweenJoistCtrs = defaults.opts.widthBetweenJoistCtrs,
             height = defaults.opts.height,
             thickness = defaults.opts.thickness,
+            orientation = defaults.opts.orientation,
             type = defaults.opts.type,
             scale = defaults.opts.scale,
             interfaceThickness = defaults.opts.interfaceThickness,
@@ -151,8 +167,10 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
             dowelCtrDistance,
             widthToJoistCtr,
             depthToJoistCtr,
+            widthBetweenJoistCtrs,
             height,
             thickness,
+            orientation,
             ...stdOpts,
         }
 
@@ -181,8 +199,10 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
             dowelCtrDistance,
             widthToJoistCtr,
             depthToJoistCtr,
+            widthBetweenJoistCtrs,
             height,
             thickness,
+            orientation,
             type,
             scale,
             interfaceThickness,
@@ -210,10 +230,12 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
 
         /** Constant values for model */
         const modelConstants = {
+            orientations: defaults.vals.constants.orientations
         }
 
         /** Derived user options for the model */
         const modelOpts = {
+            orientation,
             type,
             scale,
         }
@@ -224,6 +246,7 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
             dowelCtrDistance,
             widthToJoistCtr,
             depthToJoistCtr,
+            widthBetweenJoistCtrs,
             height,
             thickness,
             totalWidth,
@@ -289,10 +312,15 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
         const modelProperties = angleBracketsProps(initOpts)
 
         const {
+            orientation,
+        } = modelProperties.opts
+
+        const {
             dowelRadius,
             dowelCtrDistance,
             widthToJoistCtr,
             depthToJoistCtr,
+            widthBetweenJoistCtrs,
             height,
             thickness,
             totalWidth,
@@ -302,6 +330,120 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
             interfaceThickness,
             fitGap,
         } = modelProperties.dims
+
+        const bracketBodyBlank = null
+        const bracketBodyCutaway = null
+        const bracketBodyBase = null
+
+        const joistDowelCutawayBase = null
+        const joistDowelCutaways = null
+
+        const bracketBody = null
+        const bracketAngleSupport = null
+
+        const bracketAssembly = null
+
+        const mainModel = cuboid()
+        const modelParts = {
+            mainModel,
+        }
+
+        return [mainModel, modelParts, modelProperties]
+    }
+
+    /**
+     * New Model 1
+     * @param {*} opts 
+     * @returns Array with model, parts, and properties: [`geom3`, `Object.<string, geom3>`, `Object.<string, any>`]
+     * @memberof newModelParent
+     */
+    const straightColumnBracket = (opts) => {
+        const defaults = angleBracketsDefaults()
+        const initOpts = angleBracketsOpts(opts)
+        const modelProperties = angleBracketsProps(initOpts)
+
+        const {
+            orientation,
+        } = modelProperties.opts
+
+        const {
+            dowelRadius,
+            dowelCtrDistance,
+            widthToJoistCtr,
+            depthToJoistCtr,
+            widthBetweenJoistCtrs,
+            height,
+            thickness,
+            totalWidth,
+            totalDepth,
+            widthAngleSupport,
+            depthAngleSupport,
+            interfaceThickness,
+            fitGap,
+        } = modelProperties.dims
+
+        const bracketBodyBlank = null
+        const bracketBodyCutaway = null
+        const bracketBodyBase = null
+
+        const joistDowelCutawayBase = null
+        const joistDowelCutaways = null
+
+        const bracketBody = null
+        const bracketAngleSupport = null
+
+        const bracketAssembly = null
+
+        const mainModel = cuboid()
+        const modelParts = {
+            mainModel,
+        }
+
+        return [mainModel, modelParts, modelProperties]
+    }
+
+    /**
+     * New Model 1
+     * @param {*} opts 
+     * @returns Array with model, parts, and properties: [`geom3`, `Object.<string, geom3>`, `Object.<string, any>`]
+     * @memberof newModelParent
+     */
+    const teeColumnBracket = (opts) => {
+        const defaults = angleBracketsDefaults()
+        const initOpts = angleBracketsOpts(opts)
+        const modelProperties = angleBracketsProps(initOpts)
+
+        const {
+            orientation,
+        } = modelProperties.opts
+
+        const {
+            dowelRadius,
+            dowelCtrDistance,
+            widthToJoistCtr,
+            depthToJoistCtr,
+            widthBetweenJoistCtrs,
+            height,
+            thickness,
+            totalWidth,
+            totalDepth,
+            widthAngleSupport,
+            depthAngleSupport,
+            interfaceThickness,
+            fitGap,
+        } = modelProperties.dims
+
+        const bracketBodyBlank = null
+        const bracketBodyCutaway = null
+        const bracketBodyBase = null
+
+        const joistDowelCutawayBase = null
+        const joistDowelCutaways = null
+
+        const bracketBody = null
+        const bracketAngleSupport = null
+
+        const bracketAssembly = null
 
         const mainModel = cuboid()
         const modelParts = {
@@ -315,6 +457,8 @@ const angleBracketsInit = ({ jscad, swcadJs }) => {
         defaults: angleBracketsDefaults,
         props: angleBracketsProps,
         rightAngleColumnBracket,
+        straightColumnBracket,
+        teeColumnBracket,
     }
 }
 
