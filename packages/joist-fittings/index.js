@@ -140,8 +140,11 @@ const simpleRailFrame = railFrames.simpleRailFrame({
     ...commonRailFrameOpts
 })[0]
 
-
 const simpleJoistRailBracket = railFrames.simpleJoistRailBracket({
+    ...commonRailFrameOpts
+})[0]
+
+const joistRailBracket = railFrames.joistRailBracket({
     ...commonRailFrameOpts
 })[0]
 
@@ -191,7 +194,7 @@ function main() {
 
     // return layoutContent;
 
-    return simpleJoistRailBracket
+    return joistRailBracket
 }
 
 
