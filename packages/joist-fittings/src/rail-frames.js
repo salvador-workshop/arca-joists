@@ -32,6 +32,7 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         componentLine,
         fittings,
         reinforcements,
+        boxSupport,
     } = swcadJs.components
 
 
@@ -506,38 +507,14 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         const modelProperties = railFramesProps(initOpts)
 
         const {
-            size,
-            width,
-            depth,
             dowelRadius,
             dowelCtrDistance,
             railBracketDepth,
             railBracketHeight,
-            dowelDiam,
-            dowelHolderWidth,
-            railEdgeOffset,
-            railCentreOffset,
-            centreFrameWidth,
-            joistCtrDistance,
-            sideFrameWidth,
-            joistWebWidth,
-            invCutawayHeight,
             joistRailBracketCutawaySize,
             simpleJoistRailBracketWidth,
-            joistRailBracketWidth,
             interfaceThickness,
-            fitGap,
         } = modelProperties.dims
-
-        const {
-            centrePt,
-            joistWebEdgePtLeft,
-            joistWebEdgePtRight,
-            holderEdgePtLeft1,
-            holderEdgePtLeft2,
-            holderEdgePtRight1,
-            holderEdgePtRight2,
-        } = modelProperties.points
 
         const bracketSurfaceLip = align(
             { modes: ['center', 'min', 'min'] },
@@ -591,12 +568,30 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         )
 
         const shortSupportDepth = railBracketDepth - joistRailBracketCutawaySize[1]
-        const angleSupportFull = null
-        const angleSupportOverHolder = null
+        let angleSupportFull = boxSupport.boxSupportQuarter({
+            size: [railBracketDepth, railBracketHeight],
+        })[0]
+        angleSupportFull = rotate([0, TAU / -4, 0], angleSupportFull)
+        angleSupportFull = align({
+            modes: ['center', 'min', 'max'],
+            relativeTo: [0, 0, railBracketDepth]
+        }, angleSupportFull)
+
+        let angleSupportOverHolder = boxSupport.boxSupportQuarter({
+            size: [shortSupportDepth, railBracketHeight],
+        })[0]
+        angleSupportOverHolder = rotate([0, TAU / -4, 0], angleSupportOverHolder)
+        angleSupportOverHolder = align({
+            modes: ['center', 'min', 'max'],
+            relativeTo: [0, 0, railBracketDepth]
+        }, angleSupportOverHolder)
 
         const bracketAssembly = union(
             bracketSurface,
             holders,
+            angleSupportFull,
+            translate([dowelCtrDistance / -2, 0, 0], angleSupportOverHolder),
+            translate([dowelCtrDistance / 2, 0, 0], angleSupportOverHolder),
         )
 
         const mainModel = bracketAssembly
