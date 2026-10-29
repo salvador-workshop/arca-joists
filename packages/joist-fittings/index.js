@@ -87,7 +87,8 @@ const commonOpts = {
 
 const commonRailFrameOpts = {
     ...commonOpts,
-    size: [200, 120],
+    joistCtrDistance: 180,
+    width: 100,
 }
 
 const rightAngleBracketsOpts = {

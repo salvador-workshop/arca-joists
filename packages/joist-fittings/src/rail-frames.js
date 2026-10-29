@@ -50,10 +50,8 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         /** Specific value declarations */
         const defaultValues = {
             dims: {
-                size: [
-                    math.inchesToMm(6),
-                    math.inchesToMm(4),
-                ],
+                joistCtrDistance: math.inchesToMm(6),
+                width: math.inchesToMm(4),
                 dowelRadius: 3.25 / 2,
                 dowelCtrDistance: math.inchesToMm(1.25),
                 dowelHolderLength: math.inchesToMm(5 / 16),
@@ -80,7 +78,8 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         /** Computed values for option defaults */
         const defaultOpts = {
             ...standardOpts,
-            size: defaultValues.dims.size,
+            joistCtrDistance: defaultValues.dims.joistCtrDistance,
+            width: defaultValues.dims.width,
             dowelRadius: defaultValues.dims.dowelRadius,
             dowelCtrDistance: defaultValues.dims.dowelCtrDistance,
             dowelHolderLength: defaultValues.dims.dowelHolderLength,
@@ -109,7 +108,8 @@ const railFramesInit = ({ jscad, swcadJs }) => {
 
         // User options
         const {
-            size = defaults.opts.size,
+            joistCtrDistance = defaults.opts.joistCtrDistance,
+            width = defaults.opts.width,
             dowelRadius = defaults.opts.dowelRadius,
             dowelCtrDistance = defaults.opts.dowelCtrDistance,
             dowelHolderLength = defaults.opts.dowelHolderLength,
@@ -128,7 +128,8 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         }
 
         const initOpts = {
-            size,
+            joistCtrDistance,
+            width,
             dowelRadius,
             dowelCtrDistance,
             dowelHolderLength,
@@ -155,7 +156,8 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         const defaults = railFramesDefaults()
 
         const {
-            size,
+            joistCtrDistance,
+            width,
             dowelRadius,
             dowelCtrDistance,
             dowelHolderLength,
@@ -170,17 +172,15 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         * Prop calculations
         * ------------------------------------- */
 
-        const width = size[0]
-        const depth = size[1]
         const dowelDiam = dowelRadius * 2
 
         const railEdgeOffset = dowelDiam + interfaceThickness
-        const joistCtrDistanceEdgeOffset = dowelRadius + interfaceThickness
-        const joistCtrDistanceOffset = (dowelCtrDistance / 2) + joistCtrDistanceEdgeOffset
+        const dowelCtrDistanceEdgeOffset = dowelRadius + interfaceThickness
+        const joistCtrDistanceOffset = (dowelCtrDistance / 2) + dowelCtrDistanceEdgeOffset
         const railCentreOffset = dowelCtrDistance + railEdgeOffset
 
-        const centreFrameWidth = width - (railCentreOffset * 2)
-        const joistCtrDistance = width - (joistCtrDistanceOffset * 2)
+        const railBodyLength = joistCtrDistance + (joistCtrDistanceOffset * 2)
+        const centreFrameWidth = railBodyLength - (railCentreOffset * 2)
         const sideFrameWidth = dowelCtrDistance + interfaceThickness
 
         const joistWebEdgePtLeft = [centreFrameWidth / -2 - dowelDiam, 0, 0]
@@ -206,11 +206,11 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         ]
 
         const simpleJoistRailBracketWidth = dowelCtrDistance + dowelDiam + (interfaceThickness * 4)
-        const joistRailBracketWidth = width + (interfaceThickness * 2)
+        const joistRailBracketWidth = railBodyLength + (interfaceThickness * 2)
         const railBracketHeight = railBracketDepth * constants.PHI_INV
 
         const bracketGap = dowelHolderWidth * 2.25
-        const singleBracketDowelHolderLineDepth = depth - bracketGap - railBracketHeight
+        const singleBracketDowelHolderLineDepth = width - bracketGap - railBracketHeight
         const doubleBracketDowelHolderLineDepth = singleBracketDowelHolderLineDepth - bracketGap - railBracketHeight
 
         /* ----------------------------------------
@@ -230,9 +230,9 @@ const railFramesInit = ({ jscad, swcadJs }) => {
 
         /** Various dimensions for model */
         const modelDims = {
-            size,
+            joistCtrDistance,
             width,
-            depth,
+            railBodyLength,
             dowelRadius,
             dowelCtrDistance,
             railBracketDepth,
@@ -403,7 +403,7 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         const modelProperties = railFramesProps(initOpts)
 
         const {
-            depth,
+            width,
             centreFrameWidth,
             joistWebWidth,
             joistReinforcementLevel,
@@ -418,7 +418,7 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         const centreFrame = reinforcements.reinforcedRectPanel({
             size: [
                 centreFrameWidth,
-                depth,
+                width,
                 interfaceThickness
             ],
             reinforcementThickness: [interfaceThickness, interfaceThickness, interfaceThickness],
@@ -426,7 +426,7 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         })[0]
 
         const sideJoistWeb = reinforcements.reinforcedJoist({
-            length: depth,
+            length: width,
             width: joistWebWidth,
             reinforcementLevel: joistReinforcementLevel,
         })[0]
@@ -467,7 +467,7 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         const modelProperties = railFramesProps(initOpts)
 
         const {
-            depth,
+            width,
             dowelRadius,
             dowelHolderLength,
         } = modelProperties.dims
@@ -481,7 +481,7 @@ const railFramesInit = ({ jscad, swcadJs }) => {
 
         const bRailFrame = baseRailFrame(opts)[0]
         const fittingLine = simpleDowelHolderLine({
-            length: depth,
+            length: width,
             dowelRadius,
             dowelHolderLength,
         })
@@ -724,7 +724,6 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         const modelProperties = railFramesProps(initOpts)
 
         const {
-            depth,
             dowelRadius,
             dowelHolderLength,
             singleBracketDowelHolderLineDepth,
@@ -807,7 +806,7 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         const modelProperties = railFramesProps(initOpts)
 
         const {
-            depth,
+            width,
             dowelRadius,
             dowelHolderLength,
             doubleBracketDowelHolderLineDepth,
@@ -860,14 +859,14 @@ const railFramesInit = ({ jscad, swcadJs }) => {
         const topRail = align(
             {
                 modes: ['center', 'min', 'min'],
-                relativeTo: [0, depth / -2, 0]
+                relativeTo: [0, width / -2, 0]
             },
             sRail
         )
         const bottomRail = align(
             {
                 modes: ['center', 'max', 'min'],
-                relativeTo: [0, depth / 2, 0]
+                relativeTo: [0, width / 2, 0]
             },
             sRail
         )
