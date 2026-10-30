@@ -27,7 +27,12 @@ const dowelJoistSetInit = ({ jscad, swcadJs }) => {
     const dowelJoistSetDefaults = () => {
         /** Specific value declarations */
         const defaultValues = {
+            constants: {
+                dowelHolderTypes: ['single', 'inverse', 'double']
+            },
             opts: {
+                reinforcementLevel: 1,
+                dowelHolderType: 'double',
                 numSegments: 2,
                 type: standards.types.TYPE_DEFAULT,
                 scale: 1,
@@ -37,6 +42,7 @@ const dowelJoistSetInit = ({ jscad, swcadJs }) => {
                 dowelCtrDistance: math.inchesToMm(1.25),
                 length: math.inchesToMm(5.5),
                 unitLength: math.inchesToMm(1),
+                dowelHolderLength: math.inchesToMm(1 / 4),
                 interfaceThickness: standards.INTERFACE_THICKNESS,
                 fitGap: standards.FIT_GAP,
             },
@@ -64,7 +70,10 @@ const dowelJoistSetInit = ({ jscad, swcadJs }) => {
             dowelCtrDistance: defaultValues.dims.dowelCtrDistance,
             length: defaultValues.dims.length,
             unitLength: defaultValues.dims.unitLength,
+            dowelHolderLength: defaultValues.dims.dowelHolderLength,
             numSegments: defaultValues.opts.numSegments,
+            reinforcementLevel: defaultValues.opts.reinforcementLevel,
+            dowelHolderType: defaultValues.opts.dowelHolderType,
         }
 
         return {
@@ -94,7 +103,10 @@ const dowelJoistSetInit = ({ jscad, swcadJs }) => {
             dowelCtrDistance = defaults.opts.dowelCtrDistance,
             length = defaults.opts.length,
             unitLength = defaults.opts.unitLength,
+            dowelHolderLength = defaults.opts.dowelHolderLength,
             numSegments = defaults.opts.numSegments,
+            reinforcementLevel = defaults.opts.reinforcementLevel,
+            dowelHolderType = defaults.opts.dowelHolderType,
             type = defaults.opts.type,
             scale = defaults.opts.scale,
             interfaceThickness = defaults.opts.interfaceThickness,
@@ -113,7 +125,10 @@ const dowelJoistSetInit = ({ jscad, swcadJs }) => {
             dowelCtrDistance,
             length,
             unitLength,
+            dowelHolderLength,
             numSegments,
+            reinforcementLevel,
+            dowelHolderType,
             ...stdOpts,
         }
 
@@ -141,7 +156,10 @@ const dowelJoistSetInit = ({ jscad, swcadJs }) => {
             dowelCtrDistance,
             length,
             unitLength,
+            dowelHolderLength,
             numSegments,
+            reinforcementLevel,
+            dowelHolderType,
             type,
             scale,
             interfaceThickness,
@@ -209,6 +227,8 @@ const dowelJoistSetInit = ({ jscad, swcadJs }) => {
         /** Derived user options for the model */
         const modelOpts = {
             numSegments,
+            reinforcementLevel,
+            dowelHolderType,
             type,
             scale,
         }
@@ -219,6 +239,7 @@ const dowelJoistSetInit = ({ jscad, swcadJs }) => {
             dowelCtrDistance,
             length,
             unitLength,
+            dowelHolderLength,
             numSegments,
             numMidSegments,
             segmentLength,
@@ -282,21 +303,23 @@ const dowelJoistSetInit = ({ jscad, swcadJs }) => {
         const {
             dowelRadius,
             dowelCtrDistance,
-            length,
             unitLength,
-            numSegments,
-            numMidSegments,
-            segmentLength,
-            segmentConnectorOffset,
+            dowelHolderLength,
             segmentDims,
-            interfaceThickness,
-            fitGap,
         } = modelProperties.dims
+
+        const {
+            reinforcementLevel,
+            dowelHolderType,
+        } = modelProperties.opts
 
         const commonDowelJoistPanelOpts = {
             dowelRadius,
             dowelCtrDistance,
             unitLength,
+            dowelHolderLength,
+            reinforcementLevel,
+            dowelHolderType,
         }
 
         const segments = segmentDims.map(segmentDimSet => {
