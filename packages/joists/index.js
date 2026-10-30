@@ -112,10 +112,21 @@ const dowelJoistPanelOpts4 = {
     dovetailOpt: 'female'
 }
 
+const dowelJoistPanelOpts5 = {
+    ...commonJoistOpts,
+    dowelHolderType: 'single'
+}
+const dowelJoistPanelOpts6 = {
+    ...commonJoistOpts,
+    dowelHolderType: 'inverse'
+}
+
 const dowelJoistPanel1 = dowelJoistPanel(dowelJoistPanelOpts1)[0]
 const dowelJoistPanel2 = dowelJoistPanel(dowelJoistPanelOpts2)[0]
 const dowelJoistPanel3 = dowelJoistPanel(dowelJoistPanelOpts3)[0]
 const dowelJoistPanel4 = dowelJoistPanel(dowelJoistPanelOpts4)[0]
+const dowelJoistPanel5 = dowelJoistPanel(dowelJoistPanelOpts5)[0]
+const dowelJoistPanel6 = dowelJoistPanel(dowelJoistPanelOpts6)[0]
 
 /* ----------------------------------------
  * Dowel Joist Sets
@@ -127,74 +138,57 @@ const commonJoistSetOpts = {
     unitLength: math.inchesToMm(1),
 }
 
-const dowelJoistSet1 = dowelJoistSet({
-    ...commonJoistSetOpts,
-    length: 120,
-    numSegments: 1,
-})[0]
+// const dowelJoistSet1 = dowelJoistSet({
+//     ...commonJoistSetOpts,
+//     length: 120,
+//     numSegments: 1,
+// })[0]
 
-const dowelJoistSet2 = dowelJoistSet({
-    ...commonJoistSetOpts,
-    length: 120,
-    numSegments: 2,
-})[0]
+// const dowelJoistSet2 = dowelJoistSet({
+//     ...commonJoistSetOpts,
+//     length: 120,
+//     numSegments: 2,
+// })[0]
 
-const dowelJoistSet3 = dowelJoistSet({
-    ...commonJoistSetOpts,
-    length: 180,
-    numSegments: 3,
-})[0]
+// const dowelJoistSet3 = dowelJoistSet({
+//     ...commonJoistSetOpts,
+//     length: 180,
+//     numSegments: 3,
+// })[0]
 
-const dowelJoistSet4 = dowelJoistSet({
-    ...commonJoistSetOpts,
-    length: 300,
-    numSegments: 5,
-})[0]
-
-console.log(dowelJoistSet1)
+// const dowelJoistSet4 = dowelJoistSet({
+//     ...commonJoistSetOpts,
+//     length: 300,
+//     numSegments: 5,
+// })[0]
 
 /**
  * Main function to be rendered by JSCAD
  * @returns `geom3` or `geom3[]`
  */
 function main() {
-    // layout.addToLayout({
-    //     name: 'dowelJoistPanel1',
-    //     desc: '...',
-    //     layoutOpts,
-    // }, dowelJoistPanel1);
-    // layout.addToLayout({
-    //     name: 'dowelJoistPanel2',
-    //     desc: '...',
-    //     layoutOpts,
-    // }, dowelJoistPanel2);
-    // layout.addToLayout({
-    //     name: 'dowelJoistPanel3',
-    //     desc: '...',
-    //     layoutOpts,
-    // }, dowelJoistPanel3);
-    // layout.addToLayout({
-    //     name: 'dowelJoistPanel4',
-    //     desc: '...',
-    //     layoutOpts,
-    // }, dowelJoistPanel4);
+    /* ----------------------------------------
+    * Dowel Joists
+    * ------------------------------------- */
 
-    // const layoutContent = layout.gridLayout({ layoutOpts });
+    return [
+        translate([spaceUnit * 0, spaceUnit * 0, spaceUnit * 0], dowelJoistPanel1),
+        translate([spaceUnit * 1, spaceUnit * 0, spaceUnit * 0], dowelJoistPanel2),
+        translate([spaceUnit * 2, spaceUnit * 0, spaceUnit * 0], dowelJoistPanel3),
+        translate([spaceUnit * 3, spaceUnit * 0, spaceUnit * 0], dowelJoistPanel4),
+        translate([spaceUnit * 0, spaceUnit * 2.5, spaceUnit * 0], dowelJoistPanel5),
+        translate([spaceUnit * 1, spaceUnit * 2.5, spaceUnit * 0], dowelJoistPanel6),
+    ]
 
-    // return layoutContent;
+    /* ----------------------------------------
+    * Dowel Joist Sets
+    * ------------------------------------- */
 
-    // return [
-    //     translate([spaceUnit * 0, spaceUnit * 0, spaceUnit * 0], dowelJoistPanel1),
-    //     translate([spaceUnit * 1, spaceUnit * 0, spaceUnit * 0], dowelJoistPanel2),
-    //     translate([spaceUnit * 2, spaceUnit * 0, spaceUnit * 0], dowelJoistPanel3),
-    //     translate([spaceUnit * 3, spaceUnit * 0, spaceUnit * 0], dowelJoistPanel4),
-    // ]
+    // const joistOuts = dowelJoistSet3.map((dJoistSegment, idx) => {
+    //     return translate([spaceUnit * idx, spaceUnit * 0, spaceUnit * 0], dJoistSegment)
+    // })
 
-    const joistOuts = dowelJoistSet3.map((dJoistSegment, idx) => {
-        return translate([spaceUnit * idx, spaceUnit * 0, spaceUnit * 0], dJoistSegment)
-    })
-
-    return joistOuts
+    // return joistOuts
 }
 
 
