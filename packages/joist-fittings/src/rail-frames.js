@@ -205,7 +205,7 @@ const railFramesInit = ({ jscad, swcadJs }) => {
             invCutawayHeight + (interfaceThickness / 2),
         ]
 
-        const simpleJoistRailBracketWidth = dowelCtrDistance + dowelDiam + (interfaceThickness * 4)
+        const simpleJoistRailBracketWidth = dowelCtrDistance + dowelDiam + (interfaceThickness * 2)
         const joistRailBracketWidth = railBodyLength + (interfaceThickness * 2)
         const railBracketHeight = railBracketDepth * constants.PHI_INV
 

@@ -48,12 +48,20 @@ const dowelJoistPanelInit = ({ jscad, swcadJs }) => {
 
         const defaultValues = {
             constants: {
+                dovetailOpts: [
+                    'none',
+                    'female',
+                    'male',
+                    'both',
+                ],
+                dowelHolderTypes: ['single', 'inverse', 'double']
             },
             opts: {
+                reinforcementLevel: 1,
+                dovetailOpt: 'none',
+                dowelHolderType: 'double',
                 type: standards.types.TYPE_DEFAULT,
                 scale: 1,
-                dovetailOpt: 'none',
-                reinforcementLevel: 1,
             },
             dims: {
                 dowelRadius: 3.25 / 2,
@@ -87,6 +95,7 @@ const dowelJoistPanelInit = ({ jscad, swcadJs }) => {
             dowelHolderLength: defaultValues.dims.dowelHolderLength,
             reinforcementLevel: defaultValues.opts.reinforcementLevel,
             dovetailOpt: defaultValues.opts.dovetailOpt,
+            dowelHolderType: defaultValues.opts.dowelHolderType,
         }
 
 
@@ -116,6 +125,7 @@ const dowelJoistPanelInit = ({ jscad, swcadJs }) => {
             dowelHolderLength = defaults.opts.dowelHolderLength,
             reinforcementLevel = defaults.opts.reinforcementLevel,
             dovetailOpt = defaults.opts.dovetailOpt,
+            dowelHolderType = defaults.opts.dowelHolderType,
             type = defaults.opts.type,
             scale = defaults.opts.scale,
             interfaceThickness = defaults.opts.interfaceThickness,
@@ -137,6 +147,7 @@ const dowelJoistPanelInit = ({ jscad, swcadJs }) => {
             dowelHolderLength,
             reinforcementLevel,
             dovetailOpt,
+            dowelHolderType,
             ...stdOpts,
         }
 
@@ -163,6 +174,7 @@ const dowelJoistPanelInit = ({ jscad, swcadJs }) => {
             dowelHolderLength,
             reinforcementLevel,
             dovetailOpt,
+            dowelHolderType,
             type,
             scale,
             interfaceThickness,
@@ -183,8 +195,9 @@ const dowelJoistPanelInit = ({ jscad, swcadJs }) => {
         const modelOpts = {
             type,
             scale,
-            dovetailOpt,
             reinforcementLevel,
+            dovetailOpt,
+            dowelHolderType,
         }
 
         const modelConstants = {
@@ -249,10 +262,28 @@ const dowelJoistPanelInit = ({ jscad, swcadJs }) => {
                 dowelHolderLength,
             } = modelProps.dims
 
-            let dHolder = fittings.doubleRoundFitting({
-                dowelRadius,
-                length: dowelHolderLength,
-            })[0]
+            const {
+                dowelHolderType,
+            } = modelProps.opts
+
+            let dHolder = null
+            if (dowelHolderType == 'single') {
+                dHolder = fittings.roundFitting({
+                    dowelRadius,
+                    length: dowelHolderLength,
+                })[0]
+            } else if (dowelHolderType == 'inverse') {
+                dHolder = fittings.inverseRoundFitting({
+                    dowelRadius,
+                    length: dowelHolderLength,
+                })[0]
+            } else {
+                // defaults to 'double'
+                dHolder = fittings.doubleRoundFitting({
+                    dowelRadius,
+                    length: dowelHolderLength,
+                })[0]
+            }
 
             const holderPairPoints = [
                 [width / -2, 0, 0],
