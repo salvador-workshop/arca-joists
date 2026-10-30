@@ -48,6 +48,12 @@ const dowelJoistPanelInit = ({ jscad, swcadJs }) => {
 
         const defaultValues = {
             constants: {
+                dovetailOpts: [
+                    'none',
+                    'female',
+                    'male',
+                    'both',
+                ]
             },
             opts: {
                 type: standards.types.TYPE_DEFAULT,
