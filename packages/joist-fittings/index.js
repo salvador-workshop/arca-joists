@@ -223,7 +223,7 @@ function main() {
 
     // return layoutContent;
 
-    return rightAngleColumnBracketExt
+    return simpleJoistRailBracket
 }
 
 
