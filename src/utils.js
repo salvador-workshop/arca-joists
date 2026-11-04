@@ -59,6 +59,18 @@ const dateTagTime = (unpackedDate) => {
     return dTagTime
 }
 
+const formatParamsToCmdString = (modelParameters) => {
+    //   jscad name_plate.jscad --name "Just Me" --title "CEO"
+
+    const paramStrs = []
+    for (const param in modelParameters) {
+        const paramVal = modelParameters[param]
+        paramStrs.push(`--${param} "${paramVal}"`)
+    }
+
+    return paramStrs.join(' ')
+}
+
 export const utils = {
     configPath,
     inputDir,
@@ -66,6 +78,7 @@ export const utils = {
     unpackDate,
     dateTagDay,
     dateTagTime,
+    formatParamsToCmdString,
 }
 
 export const arcaConfig = JSON.parse(arcaConfigJsonContent);
