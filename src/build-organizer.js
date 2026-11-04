@@ -3,24 +3,22 @@
 
 import { exec } from "child_process";
 import {
-    readFileSync,
     lstatSync,
     readdirSync,
     existsSync,
     mkdirSync,
 } from 'node:fs';
-import { dirname, join, relative } from 'path';
-import { fileURLToPath } from 'url';
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const configPath = join(__dirname, '../arca.config.json')
-const inputDir = join(__dirname, '../input')
-const outputDir = join(__dirname, '../output')
+import { join, relative } from 'path';
 
-const arcaConfigJsonContent = readFileSync(configPath);
-const arcaConfigJsonData = JSON.parse(arcaConfigJsonContent);
-console.log(arcaConfigJsonContent);
-console.log(arcaConfigJsonData);
-console.log(typeof arcaConfigJsonData);
+import {
+    utils,
+    arcaConfig
+} from './utils'
+
+const inputDir = utils.inputDir
+const outputDir = utils.outputDir
+
+const arcaConfigJsonData = arcaConfig
 
 let detectedProject = false
 let detectedBuildConfigs = false
